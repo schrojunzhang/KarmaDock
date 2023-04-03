@@ -48,7 +48,7 @@ cd KarmaDock
 conda env create -f karmadock_env.yaml
 ```
 
-or you can download the [conda-packed file](https://pan.baidu.com/s/1_Pzr8ZxnmfgwPkr8iiaO4Q?pwd=kyhc) (code=kyhc), and then unzip it in `${anaconda install dir}/anaconda3/envs`. `${anaconda install dir}` represents the dir where the anaconda is installed. For me, ${anaconda install dir}=/root . 
+or you can download the [conda-packed file](https://zenodo.org/record/7788732/files/karmadock_env.tar.gz?download=1), and then unzip it in `${anaconda install dir}/anaconda3/envs`. `${anaconda install dir}` represents the dir where the anaconda is installed. For me, ${anaconda install dir}=/root . 
 
 ```
 mkdir ${anaconda install dir}/anaconda3/envs/karmadock 
