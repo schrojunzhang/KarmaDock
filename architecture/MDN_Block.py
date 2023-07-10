@@ -56,8 +56,8 @@ class MDN_Block(nn.Module):
         C = self.MLP(C)
 
         # Get batch indexes for ligand-target combined features
-        C_batch = torch.tensor(range(B)).unsqueeze(-1).unsqueeze(-1)
-        C_batch = C_batch.repeat(1, N_l, N_t)[C_mask].to(lig_s.device)
+        C_batch = torch.tensor(range(B)).unsqueeze(-1).unsqueeze(-1).to(lig_s.device)
+        C_batch = C_batch.repeat(1, N_l, N_t)[C_mask]
         
         # Outputs
         pi = F.softmax(self.z_pi(C), -1)

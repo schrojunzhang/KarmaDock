@@ -13,6 +13,7 @@ from rdkit import Chem
 import warnings
 from rdkit.Chem import AllChem
 from torch_geometric.utils import to_dense_adj, dense_to_sparse
+warnings.filterwarnings("ignore")
 
 def binarize(x):
     return torch.where(x > 0, torch.ones_like(x), torch.zeros_like(x))

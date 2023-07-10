@@ -21,14 +21,9 @@ argparser.add_argument('--complex_file_dir', type=str,
 argparser.add_argument('--graph_file_dir', type=str,
                        default='/root/project_7/data/graphs/test',
                        help='the graph files path')
-argparser.add_argument('--csv_file', type=str,
-                       default='/root/project_7/data/pdbbind2020.csv',
-                       help='the csv file with dataset split')
 args = argparser.parse_args()
 os.makedirs(args.graph_file_dir, exist_ok=True)
-csv_file = args.csv_file
-df = pd.read_csv(csv_file)
-pdb_ids = df.loc[:, 'pdb_id'].values
+pdb_ids = os.listdir(args.complex_file_dir)
 # generate graph
 test_dataset = graph_obj.PDBBindGraphDataset(src_dir=args.complex_file_dir,
                                         dst_dir=args.graph_file_dir,

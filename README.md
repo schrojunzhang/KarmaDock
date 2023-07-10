@@ -7,8 +7,8 @@
 - [Overview](#overview)
 - [Software Requirements](#software-requirements)
 - [Installation Guide](#installation-guide)
-- [Demo](#demo--reproduction-ligand-docking-on-pdbbind-core-set)
-
+- [Demo: Ligand docking](#demo1--ligand-docking-on-pdbbind-core-set)
+- [Demo: Virtual screening](#demo2--virtual-screening-on-dekois-20)
 ## Overview 
 
 KarmaDock is a deep learning framework that enables ligand docking with fast speed and high accuracy. The framework consists of four main steps: creating Python environments, preprocessing PDBBind data, generating graphs based on protein-ligand complexes, and ligand docking.
@@ -56,7 +56,7 @@ tar -xzvf karmadock.tar.gz -C ${anaconda install dir}/anaconda3/envs/karmadock
 conda activate karmadock
 ```
 
-## Demo & Reproduction: ligand docking on PDBBind core set
+## Demo1 & ligand docking on PDBBind core set
 
 Assume that the project is at `/root` and therefore the project path is /root/KarmaDock.
 
@@ -66,7 +66,7 @@ You can download the PDBBind 2020 core set without preprocessing from the [PDBBi
 OR you can download [the version](https://zenodo.org/record/7788083/files/pdbbind2020_core_set.zip?download=1) where protein files were prepared by Schrodinger. 
 ```
 cd /root/KarmaDock
-weget https://zenodo.org/record/7788083/files/pdbbind2020_core_set.zip?download=1
+wget https://zenodo.org/record/7788083/files/pdbbind2020_core_set.zip?download=1
 unzip -q pdbbind2020_core_set.zip?download=1
 ```
 
@@ -93,13 +93,11 @@ cd /root/KarmaDock/utils
 python -u generate_graph.py 
 --complex_file_dir ~/your/PDBBindDataset/path 
 --graph_file_dir ~/the/directory/for/saving/graph 
---csv_file ~/path/of/csvfile/with/dataset/split
 ```
 e.g.,
 ```
-mkdir /root/KarmaDock/test_graph
 cd /root/KarmaDock/utils 
-python -u generate_graph.py --complex_file_dir /root/KarmaDock/pdbbind2020_core_set --graph_file_dir /root/KarmaDock/test_graph --csv_file /root/KarmaDock/pdbbind2020.csv
+python -u generate_graph.py --complex_file_dir /root/KarmaDock/pdbbind2020_core_set --graph_file_dir /root/KarmaDock/pdbbind_graph 
 ```
 
 ### 4. ligand docking
@@ -110,7 +108,6 @@ This step will perform ligand docking (predict binding poses and binding strengt
 cd /root/KarmaDock/utils 
 python -u ligand_docking.py 
 --graph_file_dir ~/the/directory/for/saving/graph 
---csv_file ~/path/of/csvfile/with/dataset/split 
 --model_file ~/path/of/trained/model/parameters 
 --out_dir ~/path/for/recording/BindingPoses&DockingScores 
 --docking Ture/False  whether generating binding poses
@@ -121,7 +118,40 @@ python -u ligand_docking.py
 ```
 e.g.,
 ```
-mkdir /root/KarmaDock/test_result
 cd /root/KarmaDock/utils 
-python -u ligand_docking.py --graph_file_dir /root/KarmaDock/test_graph --csv_file /root/KarmaDock/pdbbind2020.csv --model_file /root/KarmaDock/trained_models/karmadock_docking.pkl --out_dir /root/KarmaDock/test_result --docking True --scoring True --correct True --batch_size 64 --random_seed 2023
+python -u ligand_docking.py --graph_file_dir /root/KarmaDock/pdbbind_graph --model_file /root/KarmaDock/trained_models/karmadock_screening.pkl --out_dir /root/KarmaDock/pdbbind_result --docking True --scoring True --correct True --batch_size 64 --random_seed 2023
+```
+
+## Demo2 & virtual screening on DEKOIS 2.0
+
+Assume that the project is at `/root` and therefore the project path is /root/KarmaDock.
+
+### 1. Download DEKOIS dataset
+
+You can download the DEKOIS 2.0 dataset without preprocessing from the [DEKOIS website](http://www.pharmchem.uni-tuebingen.de/dekois/)
+OR you can download [the version](https://zenodo.org/record/8131256/files/DEKOIS2.zip?download=1) where protein files were prepared by Schrodinger, glide-docked poses were provided. 
+```
+cd /root/KarmaDock
+wget https://zenodo.org/record/8131256/files/DEKOIS2.zip?download=1
+unzip -q DEKOIS2.zip?download=1
+```
+### 2. virtual screening
+
+This step will perform virtual screening for a specific target PDK1 (predict binding poses and binding strengthes).
+
+```
+cd /root/KarmaDock/utils 
+python -u virtual_screening.py 
+--ligand_smi ~/the/directory/for/ligand/library/smi 
+--protein_file ~/the/directory/for/target/protein/pdb 
+--crystal_ligand_file ~/the/directory/for/crystal/ligand/mol2/for/binding/pocket 
+--model_file ~/path/of/trained/model/parameters 
+--out_dir ~/path/for/recording/BindingPoses&DockingScores 
+--batch_size 64 
+--random_seed 2023 
+```
+e.g.,
+```
+cd /root/KarmaDock/utils 
+python -u virtual_screening.py --ligand_smi /root/KarmaDock/DEKOIS2/pdk1/active_decoys.smi --protein_file /root/KarmaDock/DEKOIS2/pdk1/protein/pdk1_protein.pdb --crystal_ligand_file /root/KarmaDock/DEKOIS2/pdk1/protein/pdk1_ligand.mol2 --model_file /root/KarmaDock/trained_models/karmadock_screening.pkl --out_dir /root/KarmaDock/DEKOIS2/pdk1/karmadocked --batch_size 64 --random_seed 2023
 ```

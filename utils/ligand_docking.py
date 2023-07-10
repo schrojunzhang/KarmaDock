@@ -30,10 +30,11 @@ pwd_dir = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.dirname(pwd_dir))
 from utils.fns import Early_stopper, set_random_seed
 from dataset.graph_obj import PDBBindGraphDataset
+from dataset.dataloader_obj import PassNoneDataLoader
 from architecture.KarmaDock_architecture import KarmaDock
 from utils.post_processing import correct_pos
 
-class DataLoaderX(DataLoader):
+class DataLoaderX(PassNoneDataLoader):
 
     def __iter__(self):
         return BackgroundGenerator(super().__iter__())
@@ -41,22 +42,22 @@ class DataLoaderX(DataLoader):
 # get parameters from command line
 argparser = argparse.ArgumentParser()
 argparser.add_argument('--graph_file_dir', type=str,
-                       default='/root/project_7/data/graphs/zxj_sym_rdkit_rtm_rdkitpos',
+                       default='/root/KarmaDock/pdbbind_graph',
                        help='the graph files path')
 argparser.add_argument('--model_file', type=str,
-                       default='/root/project_7/data/model/karmadock_docking.pkl',
+                       default='/root/KarmaDock/trained_models/karmadock_screening.pkl',
                        help='model file')
 argparser.add_argument('--out_dir', type=str,
-                       default='/root/project_7/data/test/',
+                       default='/root/KarmaDock/pdbbind_result',
                        help='dir for recording binding poses and binding scores')
-argparser.add_argument('--docking', type=bool,
-                       default=True,
+argparser.add_argument('--docking', type=str,
+                       default='True',
                        help='whether generating binding poses')
-argparser.add_argument('--scoring', type=bool,
-                       default=False,
+argparser.add_argument('--scoring', type=str,
+                       default='True',
                        help='whether predict binding affinities')
-argparser.add_argument('--correct', type=bool,
-                       default=True,
+argparser.add_argument('--correct', type=str,
+                       default='True',
                        help='whether correct the predicted binding poses')
 argparser.add_argument('--batch_size', type=int,
                        default=64,
@@ -70,10 +71,7 @@ argparser.add_argument('--csv_file', type=str,
 
 args = argparser.parse_args()
 set_random_seed(args.random_seed)
-df = pd.read_csv(args.csv_file)
-test_pdb_ids = df[df.loc[:, 'group'] == 'core'].loc[:, 'pdb_id'].values
-finished_ids = [i.split('.')[0] for i in os.listdir(args.graph_file_dir)]
-test_pdb_ids = [i for i in test_pdb_ids if i in finished_ids]
+test_pdb_ids = [ i.split('.')[0] for i in os.listdir(args.graph_file_dir)]
 # dataset
 test_dataset = PDBBindGraphDataset(src_dir='',
                               dst_dir=args.graph_file_dir,
@@ -130,13 +128,17 @@ for re in range(3):
             batch = data['ligand'].batch
             pos_loss = model.module.cal_rmsd(pos_true, pos_pred, batch) 
             rmsds = torch.cat([rmsds, pos_loss], dim=0)
-            if args.correct:
+            if args.correct == 'True':
                 data.pos_preds = pos_pred
-                poses, ff_t, align_t = correct_pos(data, out_dir=out_dir, out_init=False, out_uncoorected=False, out_corrected=False)
+                poses, ff_t, align_t = correct_pos(data, out_dir=out_dir, out_init=False, out_uncoorected=True, out_corrected=True)
                 ff_time += ff_t
                 align_time += align_t
                 ff_corrected_rmsds.extend([rmsd.rmsd(pos_lis[0], pos_lis[2]) for pos_lis in poses])
                 align_corrected_rmsds.extend([rmsd.rmsd(pos_lis[1], pos_lis[2]) for pos_lis in poses])
+            else:
+                real_batch_size = data['ligand'].batch[-1] + 1
+                ff_corrected_rmsds.extend([999] * real_batch_size)
+                align_corrected_rmsds.extend([999] * real_batch_size)
             pdb_ids.extend(data.pdb_id)
             binding_scores.extend(mdn_score.cpu().numpy().tolist())
         ff_corrected_rmsds = np.asarray(ff_corrected_rmsds)

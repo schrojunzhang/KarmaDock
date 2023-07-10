@@ -176,7 +176,7 @@ class PDBBindGraphDataset(Dataset):
             data = self._single_process(idx=idx, return_graph=True, save_file=False)
         else:
             data = self.graph_labels[idx]
-        data['ligand'].pos = random_rotation(shuffle_center(data['ligand'].xyz))  
+        data['ligand'].pos = random_rotation(shuffle_center(data['ligand'].pos))  
         return data
 
 
@@ -346,8 +346,8 @@ class VSTestGraphDataset_Fly_SMI(VSTestGraphDataset_Fly):
 
     def _get_mol(self, idx):
         smi = self.ligand_smis[idx]
-        # mol = smi2conformer(smi)
-        mol = smi2conformer_fast(smi)
+        mol = smi2conformer(smi)
+        # mol = smi2conformer_fast(smi)
         return mol
     
     def _single_process(self, idx):
@@ -437,11 +437,11 @@ class VSTestGraphDataset_Fly_SDFMOL2_Refined(VSTestGraphDataset_Fly):
     '''refined the ligand conformation initialized with provied pose from SDF/MOL2 files'''
     def __init__(self, protein_file, ligand_path, pocket_center):
         super().__init__(protein_file, ligand_path, pocket_center)
-        self.ligand_names = [i.split('.')[0] for i in os.listdir(ligand_path)]
+        self.ligand_names = list(set([i.split('_')[0] for i in os.listdir(ligand_path)]))
 
     def _get_mol(self, idx):
         ligand_name = self.ligand_names[idx]
-        lig_file_sdf = f'{self.ligand_path}/{ligand_name}.sdf'
+        lig_file_sdf = f'{self.ligand_path}/{ligand_name}_pred_uncorrected.sdf'
         lig_file_mol2 = f'{self.ligand_path}/{ligand_name}.mol2'
         mol = file2conformer(lig_file_sdf, lig_file_mol2)
         return mol, ligand_name
@@ -625,7 +625,7 @@ def smi2conformer(smi):
     m_mol = add_conformer(mol)
     if m_mol != -1:
         mol = m_mol
-    mol = ff_refined_mol_pos(mol, n_max=100)
+    mol = ff_refined_mol_pos(mol, n_max=10000)
     mol = Chem.RemoveAllHs(mol)
     return mol
 
