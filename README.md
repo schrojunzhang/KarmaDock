@@ -26,7 +26,7 @@ Dependencies for KarmaDock:
 ```
 pytorch
 pyg
-rdkit
+rdkit=2022.09.1 (important!!!)
 mdanalysis
 prody 
 ```
