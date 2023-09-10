@@ -258,7 +258,6 @@ dependencies:
   - pywavelets=1.4.1=py39h389d5f1_0
   - pyyaml=6.0=py39hb9d737c_5
   - pyzmq=25.0.0=py39h0be026e_0
-  - rdkit=2022.03.5=py39h89e00b9_0
   - readline=8.1.2=h0f457ee_0
   - reportlab=3.5.68=py39he59360d_1
   - requests=2.28.1=py39h06a4308_0
