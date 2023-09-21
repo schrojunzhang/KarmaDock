@@ -18,7 +18,7 @@ If you find it useful, please cite:
 **Efficient and accurate large library ligand docking with KarmaDock**  
 Zhang, Xujun#; Zhang, Odin#; Shen, Chao; Qu, Wanglin; Chen, Shicheng; Cao, Hanqun; Kang, Yu; Wang, Zhe; Wang, Ercheng; Zhang, Jintu; Deng, Yafeng; Liu, Furui; Wang, Tianyue; Du, Hongyan; Wang, Langcheng; Pan, Peichen*; Chen, Guangyong*; Hsieh, Chang-Yu*; Hou, Tingjun*.  
 *Published in:* Nature Computational Science, 2023, Vol. 3, No. 9, pp. 789-804.  
-*DOI:* [10.1038/s43588-023-00511-5](https://doi.org/10.1038/s43588-023-00511-5)
+*DOI:* [10.1038/s43588-023-00511-5](https://www.nature.com/articles/s43588-023-00511-5)
 
 ## Software Requirements
 
