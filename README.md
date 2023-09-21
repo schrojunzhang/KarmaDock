@@ -11,7 +11,14 @@
 - [Demo: Virtual screening](#demo2--virtual-screening-on-dekois-20)
 ## Overview 
 
-KarmaDock is a deep learning framework that enables ligand docking with fast speed and high accuracy. The framework consists of four main steps: creating Python environments, preprocessing PDBBind data, generating graphs based on protein-ligand complexes, and ligand docking.
+Ligand docking is one of the core technologies in structure-based virtual screening for drug discovery. However, conventional docking tools and existing deep learning tools may suffer from limited performance in terms of speed, pose quality and binding affinity accuracy. Here we propose KarmaDock, a deep learning approach for ligand docking that integrates the functions of docking acceleration, binding pose generation and correction, and binding strength estimation. The three-stage model consists of the following components: (1) encoders for the protein and ligand to learn the representations of intramolecular interactions; (2) E(n) equivariant graph neural networks with self-attention to update the ligand pose based on both protein–ligand and intramolecular interactions, followed by post-processing to ensure chemically plausible structures; (3) a mixture density network for scoring the binding strength. KarmaDock was validated on four benchmark datasets and tested in a real-world virtual screening project that successfully identified experiment-validated active inhibitors of leukocyte tyrosine kinase (LTK).
+
+If you find it useful, please cite:
+
+**Efficient and accurate large library ligand docking with KarmaDock**  
+Zhang, Xujun#; Zhang, Odin#; Shen, Chao; Qu, Wanglin; Chen, Shicheng; Cao, Hanqun; Kang, Yu; Wang, Zhe; Wang, Ercheng; Zhang, Jintu; Deng, Yafeng; Liu, Furui; Wang, Tianyue; Du, Hongyan; Wang, Langcheng; Pan, Peichen*; Chen, Guangyong*; Hsieh, Chang-Yu*; Hou, Tingjun*.  
+*Published in:* Nature Computational Science, 2023, Vol. 3, No. 9, pp. 789-804.  
+*DOI:* [10.1038/s43588-023-00511-5](https://doi.org/10.1038/s43588-023-00511-5)
 
 ## Software Requirements
 
