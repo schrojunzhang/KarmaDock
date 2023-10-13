@@ -35,9 +35,9 @@ def prepare_pro(pdb_id):
         os.system(cmd)
 
 
-def get_pocket_pure(protein_file, somepoint, out_file):
+def get_pocket_pure(protein_file, somepoint, out_file, size=12):
     protein_prody_obj = parsePDB(protein_file)
-    condition = 'same residue as exwithin 12 of somepoint'
+    condition = f'same residue as exwithin {size} of somepoint'
     pocket_selected = protein_prody_obj.select(condition,
                                                somepoint=somepoint)  # （n, 3）
     writePDB(out_file, atoms=pocket_selected)

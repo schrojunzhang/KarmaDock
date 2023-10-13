@@ -411,8 +411,8 @@ class VSTestGraphDataset_FlyReload_SMI(VSTestGraphDataset_Fly):
             ligand_data['ligand'].mol = ligand_mol
             ligand_data['ligand'].pos = (ligand_data['ligand'].xyz + self.pocket_center - ligand_data['ligand'].xyz.mean(dim=0)).to(torch.float32)
             save_graph(dst_file, ligand_data)
-        except:
-            None
+        except Exception as e:
+            print(f'{ligand_name} error due to {e}')
             
     def merge_complex_graph(self, idx):
         ligand_name = self.ligand_names[idx]
@@ -425,6 +425,7 @@ class VSTestGraphDataset_FlyReload_SMI(VSTestGraphDataset_Fly):
     def __getitem__(self, idx):
         try:
             data = self.merge_complex_graph(idx)
+            data['ligand'].pos -= data['ligand'].pos.mean(dim=0) - self.pocket_center
             data['ligand'].pos = random_rotation(shuffle_center(data['ligand'].pos))  
         except:
             # pass
@@ -625,7 +626,7 @@ def smi2conformer(smi):
     m_mol = add_conformer(mol)
     if m_mol != -1:
         mol = m_mol
-    mol = ff_refined_mol_pos(mol, n_max=10000)
+    mol = ff_refined_mol_pos(mol, n_max=100)
     mol = Chem.RemoveAllHs(mol)
     return mol
 

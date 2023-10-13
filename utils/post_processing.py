@@ -152,10 +152,22 @@ def position_align_np(rdkit_mol, refer_mol, algo='kabsch'):
     set_rdkit_mol_position(rdkit_mol=rdkit_mol, position=A)
 
 
-def correct_pos(data, out_dir, out_init=False, out_movie=False, out_uncoorected=True, out_corrected=True):
+def correct_pos(data, out_dir, mask=[], out_init=False, out_movie=False, out_uncoorected=True, out_corrected=True):
     poses = []
     # pocket_centers = data.pocket_center.cpu().numpy().astype(np.float64)
     for idx, mol in enumerate(data['ligand'].mol):
+        # correct pos
+        pos_pred = data.pos_preds[data['ligand'].batch==idx].cpu().numpy().astype(np.float64) # + pocket_centers[idx]
+        pos_true = data['ligand'].xyz[data['ligand'].batch==idx].cpu().numpy().astype(np.float64) # + pocket_centers[idx]
+        start_time = time.perf_counter()
+        ff_corrected_mol, uncorrected_mol = correct_one(mol, pos_pred, method='ff')
+        ff_time = time.perf_counter()
+        align_corrected_mol, uncorrected_mol = correct_one(mol, pos_pred, method='align')
+        aligned_time = time.perf_counter()
+        poses.append([ff_corrected_mol.GetConformer().GetPositions(), align_corrected_mol.GetConformer().GetPositions(), pos_true])
+        if len(mask) != 0:
+            if mask[idx]:
+                continue
         if out_init:
             # random position
             pos_init = data['ligand'].pos[data['ligand'].batch==idx].cpu().numpy().astype(np.float64) # + pocket_centers[idx]
@@ -170,16 +182,7 @@ def correct_pos(data, out_dir, out_init=False, out_movie=False, out_uncoorected=
             # movie_file = f'{out_dir}/{data.pdb_id[idx]}/{data.pdb_id[idx]}_pred_movie.sdf'
             movie_file = f'{out_dir}/{data.pdb_id[idx]}_pred_movie.sdf'
             make_movide(mol, pos_seq, movie_file)
-        # correct pos
-        pos_pred = data.pos_preds[data['ligand'].batch==idx].cpu().numpy().astype(np.float64) # + pocket_centers[idx]
-        pos_true = data['ligand'].xyz[data['ligand'].batch==idx].cpu().numpy().astype(np.float64) # + pocket_centers[idx]
-        start_time = time.perf_counter()
-        ff_corrected_mol, uncorrected_mol = correct_one(mol, pos_pred, method='ff')
-        ff_time = time.perf_counter()
-        align_corrected_mol, uncorrected_mol = correct_one(mol, pos_pred, method='align')
-        align_time = time.perf_counter()
         if out_corrected:
-            # corrected_file = f'{out_dir}/{data.pdb_id[idx]}/{data.pdb_id[idx]}_pred_corrected.sdf'
             ff_corrected_file = f'{out_dir}/{data.pdb_id[idx]}_pred_ff_corrected.sdf'
             try:
                 Chem.MolToMolFile(ff_corrected_mol, ff_corrected_file)
@@ -196,8 +199,7 @@ def correct_pos(data, out_dir, out_init=False, out_movie=False, out_uncoorected=
             # uncorrected_file = f'{out_dir}/{data.pdb_id[idx]}/{data.pdb_id[idx]}_pred_uncorrected.sdf'
             uncorrected_file = f'{out_dir}/{data.pdb_id[idx]}_pred_uncorrected.sdf'
             Chem.MolToMolFile(uncorrected_mol, uncorrected_file)
-        poses.append([ff_corrected_mol.GetConformer().GetPositions(), align_corrected_mol.GetConformer().GetPositions(), pos_true])
-    return poses, ff_time - start_time, align_time - start_time
+    return poses, ff_time - start_time, aligned_time - ff_time
         
 
 def make_movide(mol, pos_seq, movie_file):
