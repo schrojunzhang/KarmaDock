@@ -152,7 +152,7 @@ def position_align_np(rdkit_mol, refer_mol, algo='kabsch'):
     set_rdkit_mol_position(rdkit_mol=rdkit_mol, position=A)
 
 
-def correct_pos(data, out_dir, mask=[], out_init=False, out_movie=False, out_uncoorected=True, out_corrected=True):
+def correct_pos(data, out_dir, mask=[], out_init=False, out_movie=False, out_uncoorected=True, out_corrected=True, addHs=True):
     poses = []
     # pocket_centers = data.pocket_center.cpu().numpy().astype(np.float64)
     for idx, mol in enumerate(data['ligand'].mol):
@@ -175,6 +175,8 @@ def correct_pos(data, out_dir, mask=[], out_init=False, out_movie=False, out_unc
             random_mol = set_rdkit_mol_position(random_mol, pos_init)
             # random_file = f'{out_dir}/{data.pdb_id[idx]}/{data.pdb_id[idx]}_random_pos.sdf'
             random_file = f'{out_dir}/{data.pdb_id[idx]}_random_pos.sdf'
+            if addHs:
+                random_mol = Chem.AddHs(random_mol, addCoords=True)
             Chem.MolToMolFile(random_mol, random_file)
         if out_movie:
             # make movie
@@ -185,12 +187,16 @@ def correct_pos(data, out_dir, mask=[], out_init=False, out_movie=False, out_unc
         if out_corrected:
             ff_corrected_file = f'{out_dir}/{data.pdb_id[idx]}_pred_ff_corrected.sdf'
             try:
+                if addHs:
+                    ff_corrected_mol = Chem.AddHs(ff_corrected_mol, addCoords=True)
                 Chem.MolToMolFile(ff_corrected_mol, ff_corrected_file)
             except:
                 print(f'save {ff_corrected_file} failed')
                 pass
             align_corrected_file = f'{out_dir}/{data.pdb_id[idx]}_pred_align_corrected.sdf'
             try:
+                if addHs:
+                    align_corrected_mol = Chem.AddHs(align_corrected_mol, addCoords=True)
                 Chem.MolToMolFile(align_corrected_mol, align_corrected_file)
             except:
                 print(f'save {ff_corrected_file} failed')
@@ -198,6 +204,8 @@ def correct_pos(data, out_dir, mask=[], out_init=False, out_movie=False, out_unc
         if out_uncoorected:
             # uncorrected_file = f'{out_dir}/{data.pdb_id[idx]}/{data.pdb_id[idx]}_pred_uncorrected.sdf'
             uncorrected_file = f'{out_dir}/{data.pdb_id[idx]}_pred_uncorrected.sdf'
+            if addHs:    
+                uncorrected_mol = Chem.AddHs(uncorrected_mol, addCoords=True)
             Chem.MolToMolFile(uncorrected_mol, uncorrected_file)
     return poses, ff_time - start_time, aligned_time - ff_time
         
