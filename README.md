@@ -123,9 +123,9 @@ python -u ligand_docking.py
 --graph_file_dir ~/the/directory/for/saving/graph 
 --model_file ~/path/of/trained/model/parameters 
 --out_dir ~/path/for/recording/BindingPoses&DockingScores 
---docking Ture/False  whether generating binding poses
---scoring Ture/False  whether predict binding affinities
---correct Ture/False  whether correct the predicted binding poses
+--docking True/False  whether generating binding poses
+--scoring True/False  whether predict binding affinities
+--correct True/False  whether correct the predicted binding poses
 --batch_size 64 
 --random_seed 2023 
 ```
